@@ -7,22 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum PostType {
-  POST
-  REPOST
+
+enum TweetType {
+  TWEET
+  RETWEET
 }
 
-model Post {
+model Tweet {
   id        String    @id @default(uuid()) @db.Uuid
   content   String    @db.VarChar(200)
-  postType  PostType  @map("post_type")
+  tweetType TweetType @map("tweet_type")
   userId    String    @db.Uuid
   likes     Like[]
-  reposts   Repost[]
+  retweets  Retweet[]
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("posts")
+  @@map("twitters")
 }
 
 model User {
@@ -30,10 +31,10 @@ model User {
   name      String     @db.VarChar(100)
   email     String     @db.VarChar(100)
   username  String     @db.VarChar(50)
-  password  String     @db.VarChar(50)
-  posts     Post[]
+  password  String     @db.VarChar(255)
+  tweets    Tweet[]
   likes     Like[]
-  reposts   Repost[]
+  retweets  Retweet[]
   followers Follower[]
 
   @@map("users")
@@ -47,26 +48,26 @@ model Follower {
   @@map("followers")
 }
 
-model Repost {
+model Retweet {
   id      String @id @default(uuid()) @db.Uuid
   content   String    @db.VarChar(200)
   userId  String @map("user_id") @db.Uuid
-  postId String @map("post_id") @db.Uuid
-  postType String @map("post_type")
+  tweetId String @map("tweet_id") @db.Uuid
+  tweetType String @map("tweet_type")
 
   user  User  @relation(fields: [userId], references: [id])
-  post Post @relation(fields: [postId], references: [id])
+  tweet Tweet @relation(fields: [tweetId], references: [id])
 
-  @@map("reposts")
+  @@map("retweets")
 }
 
 model Like {
   id      String @id @default(uuid()) @db.Uuid
   userId  String @map("user_id") @db.Uuid
-  postId  String @map("post_id") @db.Uuid
+  tweetId String @map("tweet_id") @db.Uuid
 
   user  User  @relation(fields: [userId], references: [id])
-  post  Post  @relation(fields: [postId], references: [id])
+  tweet Tweet @relation(fields: [tweetId], references: [id])
 
   @@map("likes")
 }
